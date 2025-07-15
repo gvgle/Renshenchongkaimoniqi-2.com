@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人生重开模拟器2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .race-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .race-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .race-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .race-card.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .attributes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .attribute {
+            text-align: center;
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .attribute-name {
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .attribute-value {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-top: 5px;
+        }
+
+        .talent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .talent-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+
+        .talent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .talent-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .life-log {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        .age-marker {
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .event {
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-left: 3px solid #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tribulation {
+            background: linear-gradient(135deg, #ff512f 0%, #f09819 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .immortal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .death {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .rebirth {
+            background: linear-gradient(135deg, #7bed9f 0%, #70a1ff 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: glow 2s infinite;
+        }
+
+        .otherworld {
+            background: linear-gradient(135deg, #a55eea 0%, #26de81 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: rainbow 3s infinite;
+        }
+
+        .legendary {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+            color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(123, 237, 159, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(123, 237, 159, 0.8); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        .final-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">人生重开模拟器2</h1>
+        
+        <div id="setup" class="section">
+            <h3>选择你的民族</h3>
+            <div class="race-selection">
+                <button class="race-card" onclick="selectRace('human')">人族<br><small>平衡发展，适应性强</small></button>
+                <button class="race-card" onclick="selectRace('elf')">精灵族<br><small>长寿，魅力与智慧加成</small></button>
+                <button class="race-card" onclick="selectRace('dwarf')">矮人族<br><small>体质强健，财富天赋</small></button>
+                <button class="race-card" onclick="selectRace('demon')">魔族<br><small>强大力量，修炼天赋</small></button>
+                <button class="race-card" onclick="selectRace('dragon')">龙族<br><small>至尊血脉，全属性优秀</small></button>
+                <button class="race-card" onclick="selectRace('phoenix')">凤族<br><small>涅槃重生，不死之身</small></button>
+            </div>
+            <div>当前选择: <span id="selectedRace">未选择</span></div>
+
+            <h3>属性分配（总计20点）</h3>
+            <div class="attributes">
+                <div class="attribute">
+                    <div class="attribute-name">颜值</div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="charm">
+                    <div class="attribute-value" id="charmValue">5</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">智力</div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="intelligence">
+                    <div class="attribute-value" id="intelligenceValue">5</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">体质</div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="strength">
+                    <div class="attribute-value" id="strengthValue">5</div>
+                </div>
+                <div class="attribute">
+                    <div class="attribute-name">家境</div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="wealth">
+                    <div class="attribute-value" id="wealthValue">5</div>
+                </div>
+            </div>
+            <div>剩余点数: <span id="remainingPoints">0</span></div>
+
+            <h3>选择三个天赋</h3>
+            <div class="talent-grid" id="talentGrid"></div>
+            <div>已选择: <span id="selectedTalentsCount">0</span>/3</div>
+
+            <button class="btn" onclick="startLife()">开始新的人生</button>
+        </div>
+
+        <div id="game" class="section hidden">
+            <h3>人生模拟进行中...</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="currentAge">年龄: 0岁</div>
+            <div class="life-log" id="lifeLog"></div>
+            <button class="btn" onclick="restart()">重新开始</button>
+        </div>
+
+        <div id="result" class="section hidden">
+            <h3>人生总结</h3>
+            <div id="finalResult"></div>
+            <div class="final-stats" id="finalStats"></div>
+            <button class="btn" onclick="restart()">再来一次</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedRace = null;
+        let selectedTalents = [];
+        let lifeData = {
+            race: null,
+            charm: 5,
+            intelligence: 5,
+            strength: 5,
+            wealth: 5,
+            talents: [],
+            age: 0,
+            events: [],
+            isImmortal: false,
+            tribulationsPassed: 0,
+            isInOtherworld: false,
+            deathCount: 0,
+            rebirthCount: 0,
+            specialFlags: []
+        };
+
+        const races = {
+            human: {
+                name: '人族',
+                bonuses: { charm: 0, intelligence: 0, strength: 0, wealth: 0 },
+                specialEvents: ['考试', '工作', '结婚', '生子'],
+                lifespan: 100,
+                tribulationAge: null
+            },
+            elf: {
+                name: '精灵族',
+                bonuses: { charm: 2, intelligence: 2, strength: -1, wealth: 0 },
+                specialEvents: ['森林修行', '魔法觉醒', '精灵议会'],
+                lifespan: 500,
+                tribulationAge: 300
+            },
+            dwarf: {
+                name: '矮人族',
+                bonuses: { charm: -1, intelligence: 1, strength: 3, wealth: 2 },
+                specialEvents: ['挖矿', '锻造', '商会'],
+                lifespan: 200,
+                tribulationAge: 150
+            },
+            demon: {
+                name: '魔族',
+                bonuses: { charm: 0, intelligence: 1, strength: 4, wealth: 1 },
+                specialEvents: ['魔功修炼', '魔界争霸', '血脉觉醒'],
+                lifespan: 300,
+                tribulationAge: 200
+            },
+            dragon: {
+                name: '龙族',
+                bonuses: { charm: 3, intelligence: 3, strength: 3, wealth: 3 },
+                specialEvents: ['龙族传承', '呼风唤雨', '龙王试炼'],
+                lifespan: 1000,
+                tribulationAge: 500
+            },
+            phoenix: {
+                name: '凤族',
+                bonuses: { charm: 4, intelligence: 2, strength: 2, wealth: 1 },
+                specialEvents: ['凤凰涅槃', '浴火重生', '天火洗礼'],
+                lifespan: 800,
+                tribulationAge: 400
+            }
+        };
+
+        const talents = [
+            { name: '天生丽质', effect: '颜值+2', bonus: { charm: 2 } },
+            { name: '过目不忘', effect: '智力+2', bonus: { intelligence: 2 } },
+            { name: '力大无穷', effect: '体质+2', bonus: { strength: 2 } },
+            { name: '富二代', effect: '家境+2', bonus: { wealth: 2 } },
+            { name: '修炼天才', effect: '更容易修仙', bonus: { cultivation: 3 } },
+            { name: '不老不死', effect: '寿命+200年', bonus: { lifespan: 200 } },
+            { name: '凤凰血脉', effect: '可以涅槃重生', bonus: { rebirth: 1 } },
+            { name: '龙族传承', effect: '全属性+1', bonus: { charm: 1, intelligence: 1, strength: 1, wealth: 1 } },
+            { name: '仙人指路', effect: '更容易遇到机遇', bonus: { luck: 2 } },
+            { name: '百毒不侵', effect: '免疫疾病', bonus: { immunity: 1 } },
+            { name: '商业天才', effect: '更容易致富', bonus: { business: 2 } },
+            { name: '武道天才', effect: '武功进展神速', bonus: { martial: 3 } },
+            { name: '学霸', effect: '学习能力超强', bonus: { study: 2 } },
+            { name: '社交达人', effect: '人际关系出色', bonus: { social: 2 } },
+            { name: '艺术天赋', effect: '艺术造诣超群', bonus: { art: 2 } }
+        ];
+
+        const lifeEvents = [
+            { age: 0, event: '你出生了！' },
+            { age: 6, event: '开始上学，展现出了你的天赋' },
+            { age: 12, event: '进入青春期，身体开始发育' },
+            { age: 18, event: '成年了，面临人生重要选择' },
+            { age: 25, event: '开始工作，步入社会' },
+            { age: 30, event: '考虑成家立业' },
+            { age: 40, event: '人生进入稳定期' },
+            { age: 50, event: '开始关注健康问题' },
+            { age: 60, event: '准备退休生活' },
+            { age: 70, event: '享受晚年时光' },
+            { age: 80, event: '回忆往昔岁月' },
+            { age: 90, event: '感叹人生如梦' }
+        ];
+
+        const specialEvents = {
+            death: [
+                { age: 20, event: '你在探险中遇到了魔物，生命垂危...', chance: 0.05 },
+                { age: 30, event: '你卷入了一场战争，身负重伤...', chance: 0.03 },
+                { age: 40, event: '你染上了不治之症，命在旦夕...', chance: 0.02 },
+                { age: 50, event: '你遭遇了意外事故，生死未卜...', chance: 0.04 }
+            ],
+            rebirth: [
+                { condition: 'phoenix', event: '凤凰涅槃！你浴火重生，获得了新的生命！', bonus: { age: -20, strength: 2, charm: 2 } },
+                { condition: 'talent_rebirth', event: '你的不死天赋发动，灵魂重塑肉身！', bonus: { age: -15, intelligence: 1 } }
+            ],
+            otherworld: [
+                { age: 25, event: '你意外穿越到了异世界！这里充满了魔法和奇迹...', chance: 0.08 },
+                { age: 35, event: '神秘的传送门出现，你被吸入了另一个维度...', chance: 0.06 },
+                { age: 45, event: '你在古遗迹中触发了时空魔法阵...', chance: 0.04 }
+            ],
+            powerup: [
+                { condition: 'otherworld', event: '你在异世界觉醒了魔法天赋！', bonus: { intelligence: 3, strength: 2 } },
+                { condition: 'otherworld', event: '你获得了神器，实力大增！', bonus: { strength: 4, charm: 1 } },
+                { condition: 'otherworld', event: '你成为了勇者，拯救了这个世界！', bonus: { charm: 3, intelligence: 2, wealth: 3 } }
+            ],
+            return: [
+                { condition: 'otherworld', event: '你找到了回到原世界的方法，但你已经不是原来的你了...', bonus: { intelligence: 2, strength: 2 } }
+            ],
+            legendary: [
+                { age: 60, event: '你成为了传说中的英雄，名垂千古！', chance: 0.1 },
+                { age: 70, event: '你建立了属于自己的王国！', chance: 0.08 },
+                { age: 80, event: '你发现了长生不老的秘密！', chance: 0.05 }
+            ]
+        };
+
+        function selectRace(race) {
+            selectedRace = race;
+            document.querySelectorAll('.race-card').forEach(card => card.classList.remove('selected'));
+            event.target.classList.add('selected');
+            lifeData.race = race;
+            document.getElementById('selectedRace').textContent = races[race].name;
+            console.log('选择了民族:', race);
+        }
+
+        function generateTalents() {
+            const shuffled = talents.sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 10);
+            
+            const talentGrid = document.getElementById('talentGrid');
+            talentGrid.innerHTML = '';
+            
+            selected.forEach(talent => {
+                const card = document.createElement('button');
+                card.className = 'talent-card';
+                card.innerHTML = `<strong>${talent.name}</strong><br><small>${talent.effect}</small>`;
+                card.onclick = () => selectTalent(talent, card);
+                talentGrid.appendChild(card);
+            });
+        }
+
+        function selectTalent(talent, card) {
+            if (selectedTalents.includes(talent)) {
+                selectedTalents = selectedTalents.filter(t => t !== talent);
+                card.classList.remove('selected');
+            } else if (selectedTalents.length < 3) {
+                selectedTalents.push(talent);
+                card.classList.add('selected');
+            }
+            
+            document.getElementById('selectedTalentsCount').textContent = selectedTalents.length;
+        }
+
+        function updateAttributes() {
+            const charm = parseInt(document.getElementById('charm').value);
+            const intelligence = parseInt(document.getElementById('intelligence').value);
+            const strength = parseInt(document.getElementById('strength').value);
+            const wealth = parseInt(document.getElementById('wealth').value);
+            
+            const total = charm + intelligence + strength + wealth;
+            const remaining = 20 - total;
+            
+            document.getElementById('charmValue').textContent = charm;
+            document.getElementById('intelligenceValue').textContent = intelligence;
+            document.getElementById('strengthValue').textContent = strength;
+            document.getElementById('wealthValue').textContent = wealth;
+            document.getElementById('remainingPoints').textContent = remaining;
+            
+            if (remaining < 0) {
+                document.getElementById('remainingPoints').style.color = 'red';
+            } else {
+                document.getElementById('remainingPoints').style.color = 'green';
+            }
+        }
+
+        function startLife() {
+            console.log('开始检查条件...');
+            console.log('选择的民族:', selectedRace);
+            console.log('选择的天赋:', selectedTalents);
+            
+            if (!selectedRace) {
+                alert('请先选择民族！');
+                return;
+            }
+            
+            if (selectedTalents.length !== 3) {
+                alert('请选择3个天赋！当前已选择: ' + selectedTalents.length);
+                return;
+            }
+            
+            const charm = parseInt(document.getElementById('charm').value);
+            const intelligence = parseInt(document.getElementById('intelligence').value);
+            const strength = parseInt(document.getElementById('strength').value);
+            const wealth = parseInt(document.getElementById('wealth').value);
+            const total = charm + intelligence + strength + wealth;
+            
+            console.log('属性总计:', total);
+            
+            if (total !== 20) {
+                alert('属性点必须总计20点！当前总计: ' + total);
+                return;
+            }
+            
+            lifeData.charm = charm;
+            lifeData.intelligence = intelligence;
+            lifeData.strength = strength;
+            lifeData.wealth = wealth;
+            lifeData.talents = selectedTalents;
+            
+            // 应用种族加成
+            const raceBonus = races[selectedRace].bonuses;
+            lifeData.charm += raceBonus.charm || 0;
+            lifeData.intelligence += raceBonus.intelligence || 0;
+            lifeData.strength += raceBonus.strength || 0;
+            lifeData.wealth += raceBonus.wealth || 0;
+            
+            // 应用天赋加成
+            selectedTalents.forEach(talent => {
+                if (talent.bonus) {
+                    Object.keys(talent.bonus).forEach(key => {
+                        if (lifeData[key] !== undefined) {
+                            lifeData[key] += talent.bonus[key];
+                        }
+                    });
+                }
+            });
+            
+            console.log('开始人生模拟...');
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('game').classList.remove('hidden');
+            
+            simulateLife();
+        }
+
+        function simulateLife() {
+            const lifeLog = document.getElementById('lifeLog');
+            lifeLog.innerHTML = '';
+            
+            const raceInfo = races[selectedRace];
+            let maxAge = raceInfo.lifespan;
+            
+            // 检查是否有延寿天赋
+            selectedTalents.forEach(talent => {
+                if (talent.bonus && talent.bonus.lifespan) {
+                    maxAge += talent.bonus.lifespan;
+                }
+            });
+            
+            lifeData.age = 0;
+            lifeData.events = [];
+            
+            const interval = setInterval(() => {
+                lifeData.age++;
+                
+                let eventText = '';
+                
+                // 年龄显示
+                if (lifeData.age % 10 === 0 || lifeData.age <= 20) {
+                    eventText += `<div class="age-marker">--- ${lifeData.age}岁 ---</div>`;
+                }
+                
+                // 基础人生事件
+                const lifeEvent = lifeEvents.find(e => e.age === lifeData.age);
+                if (lifeEvent) {
+                    eventText += `<div class="event">${lifeEvent.event}</div>`;
+                }
+                
+                // 种族特殊事件
+                if (Math.random() < 0.3) {
+                    const specialEvents = raceInfo.specialEvents;
+                    const randomEvent = specialEvents[Math.floor(Math.random() * specialEvents.length)];
+                    eventText += `<div class="event">你参与了${randomEvent}</div>`;
+                }
+                
+                // 修炼系统
+                if (lifeData.age >= 16 && Math.random() < 0.2) {
+                    eventText += `<div class="event">你开始修炼，感受到了体内的力量</div>`;
+                }
+                
+                // 渡劫系统
+                if (raceInfo.tribulationAge && lifeData.age >= raceInfo.tribulationAge && !lifeData.isImmortal) {
+                    eventText += `<div class="tribulation">天劫降临！你面临生死考验...</div>`;
+                    if (lifeData.strength + lifeData.intelligence > 12) {
+                        eventText += `<div class="immortal">渡劫成功！你已成为仙人，获得永生！</div>`;
+                        lifeData.isImmortal = true;
+                        lifeData.tribulationsPassed++;
+                        maxAge = 1000; // 成仙后延寿到1000岁
+                    } else {
+                        eventText += `<div class="tribulation">渡劫失败，你的修为大损...</div>`;
+                        lifeData.strength -= 2;
+                        lifeData.intelligence -= 2;
+                    }
+                }
+                
+                // 仙人特殊事件
+                if (lifeData.isImmortal && Math.random() < 0.1) {
+                    const immortalEvents = [
+                        '你在仙界结交了新的朋友',
+                        '你领悟了新的仙术',
+                        '你在仙界建立了自己的洞府',
+                        '你指点了一位凡人修士',
+                        '你参与了仙界的盛会'
+                    ];
+                    const randomEvent = immortalEvents[Math.floor(Math.random() * immortalEvents.length)];
+                    eventText += `<div class="immortal">${randomEvent}</div>`;
+                }
+                
+                // 高龄特殊事件
+                if (lifeData.age >= 500 && Math.random() < 0.15) {
+                    const ancientEvents = [
+                        '你见证了王朝的兴衰',
+                        '你成为了传说中的人物',
+                        '你的名字被载入史册',
+                        '你培养了无数弟子',
+                        '你成为了一方霸主'
+                    ];
+                    const randomEvent = ancientEvents[Math.floor(Math.random() * ancientEvents.length)];
+                    eventText += `<div class="event">${randomEvent}</div>`;
+                }
+                
+                lifeLog.innerHTML += eventText;
+                lifeLog.scrollTop = lifeLog.scrollHeight;
+                
+                // 更新进度条
+                const progress = (lifeData.age / maxAge) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('currentAge').textContent = `年龄: ${lifeData.age}岁`;
+                
+                // 检查是否结束
+                if (lifeData.age >= maxAge) {
+                    clearInterval(interval);
+                    endLife();
+                }
+            }, 100);
+        }
+
+        function endLife() {
+            document.getElementById('game').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+            
+            let finalMessage = '';
+            if (lifeData.isImmortal) {
+                finalMessage = `恭喜！你成功修炼成仙，活了${lifeData.age}岁，成为了永恒的存在！`;
+            } else if (lifeData.age >= 500) {
+                finalMessage = `你活了${lifeData.age}岁，成为了传奇人物！`;
+            } else if (lifeData.age >= 200) {
+                finalMessage = `你活了${lifeData.age}岁，度过了充实的一生！`;
+            } else {
+                finalMessage = `你活了${lifeData.age}岁，虽然短暂但也精彩！`;
+            }
+            
+            document.getElementById('finalResult').innerHTML = `<h2>${finalMessage}</h2>`;
+            
+            // 显示最终属性
+            const finalStats = document.getElementById('finalStats');
+            finalStats.innerHTML = `
+                <div class="stat-card">
+                    <h4>最终属性</h4>
+                    <p>颜值: ${lifeData.charm}</p>
+                    <p>智力: ${lifeData.intelligence}</p>
+                    <p>体质: ${lifeData.strength}</p>
+                    <p>财富: ${lifeData.wealth}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>人生成就</h4>
+                    <p>民族: ${races[selectedRace].name}</p>
+                    <p>寿命: ${lifeData.age}岁</p>
+                    <p>修仙状态: ${lifeData.isImmortal ? '已成仙' : '凡人'}</p>
+                    <p>渡劫次数: ${lifeData.tribulationsPassed}</p>
+                </div>
+                <div class="stat-card">
+                    <h4>选择天赋</h4>
+                    ${selectedTalents.map(talent => `<p>${talent.name}</p>`).join('')}
+                </div>
+            `;
+        }
+
+        function restart() {
+            // 重置所有数据
+            selectedRace = null;
+            selectedTalents = [];
+            lifeData = {
+                race: null,
+                charm: 5,
+                intelligence: 5,
+                strength: 5,
+                wealth: 5,
+                talents: [],
+                age: 0,
+                events: [],
+                isImmortal: false,
+                tribulationsPassed: 0
+            };
+            
+            // 重置界面
+            document.getElementById('setup').classList.remove('hidden');
+            document.getElementById('game').classList.add('hidden');
+            document.getElementById('result').classList.add('hidden');
+            
+            // 重置选择
+            document.querySelectorAll('.race-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.talent-card').forEach(card => card.classList.remove('selected'));
+            
+            // 重置属性滑块
+            document.getElementById('charm').value = 5;
+            document.getElementById('intelligence').value = 5;
+            document.getElementById('strength').value = 5;
+            document.getElementById('wealth').value = 5;
+            updateAttributes();
+            
+            // 重新生成天赋
+            generateTalents();
+            
+            // 重置选择状态显示
+            document.getElementById('selectedRace').textContent = '未选择';
+            document.getElementById('selectedTalentsCount').textContent = '0';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTalents();
+            
+            // 添加属性滑块事件监听
+            document.getElementById('charm').addEventListener('input', updateAttributes);
+            document.getElementById('intelligence').addEventListener('input', updateAttributes);
+            document.getElementById('strength').addEventListener('input', updateAttributes);
+            document.getElementById('wealth').addEventListener('input', updateAttributes);
+            
+            updateAttributes();
+        });
+    </script>
+</body>
